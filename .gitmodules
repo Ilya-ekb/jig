@@ -1,0 +1,3 @@
+[submodule "Assets/Submodules/BGCore"]
+	path = Assets/Submodules/BGCore
+	url = https://github.com/Ilya-ekb/BGCore.git
