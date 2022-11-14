@@ -5,13 +5,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public GameObject TicketPrefab { get; private set; }
     [SerializeField] public Transform TicketPosition { get; private set; }
 
-    private Player player;
+    private PlayerData player;
     /*
      * передвижение
     */
 
-    private void Start () {
-        player = new Player (this.gameObject);
+    private void Init () {
+        player = Model.MyPlayer;
     }
 
     private void OnTriggerEnter2D (Collider2D collider) {

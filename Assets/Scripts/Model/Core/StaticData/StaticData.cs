@@ -5,19 +5,21 @@
 /// Общие enum
 /// Название сцен
 /// </summary>
-public static class Constants
+public static class StaticData
 {
     #region PlayerPrefs
-
+    public static readonly string[] PPNames = { "Coins" }; // ???
     #endregion
 
     #region Animator States
     #endregion
 
     #region Main Settings
-    public const float CameraX = 1.0f;
-    public const float CameraY = 1.0f;
+    public const float CameraX = 5.0f;
+    public const float CameraY = 2.0f;
     public const float CameraZ = 0.0f;
+
+    public const float CameraPosSnappiness = 0.125f;
     #endregion
 
     #region Scene Names
