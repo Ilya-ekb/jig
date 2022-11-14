@@ -15,7 +15,7 @@ public class Ticket
     /// <summary>
     /// Инициализирует билет (случайная и настоящие даты)
     /// Принимает ScriptableObject TicketSettings
-    /// </summary>
+    /// </summary>    
     public Ticket (TicketSettings _settings) {
         ticketDate = randomDate (_settings.IncorrectDateProb, _settings.MaxDateDev);
         nowDate = DateTime.Now;
