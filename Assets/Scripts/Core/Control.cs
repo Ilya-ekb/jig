@@ -7,6 +7,6 @@ public static class Control
 
     private static void initializeCamera () {
         var cameraFollower = Model.MyPlayer.GetCameraFollower ();
-        cameraFollower.Initialize ();
+        cameraFollower.Init();
     }
 }
