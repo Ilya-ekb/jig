@@ -15,20 +15,29 @@ public class CameraFollower : MonoBehaviour
      * еще запоминает константый оффсет
     */
 
-
+    
     public void Init()
     {
         savedCameraOffset = new Vector3(StaticData.CameraX,
             StaticData.CameraY,
             StaticData.CameraZ);
-        transform.position = cameraFollowObject.position + savedCameraOffset;
+        transform.position = MoveCamera ();
     }
 
 
     void Update()
     {
-        transform.position = Vector3.Lerp(transform.position, 
-            cameraFollowObject.position + savedCameraOffset,
+        transform.position = Vector3.Lerp (transform.position,
+            MoveCamera (),
             StaticData.CameraPosSnappiness);
+
+    }
+
+    private Vector3 MoveCamera () {
+        var movVec = cameraFollowObject.position + savedCameraOffset;
+        var x = movVec.x;
+        var y = movVec.y;
+
+        return new Vector3 (x, y, StaticData.CameraZ);
     }
 }

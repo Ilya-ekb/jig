@@ -1,12 +1,28 @@
 using UnityEngine;
-using UnityEngine.Events;
+using UnityEngine.SceneManagement;
+using System;
 
 public class EntryPoint : MonoBehaviour
 {
-    [SerializeField] private UnityEvent ApplicationEntry;
+    public static EntryPoint Instance;
+
+    public event Action OnModelInit;
+    public event Action OnControlInit;
+    public event Action OnViewInit;
+
+    private void Awake () {
+        Instance = this;
+    }
 
     void Start()
     {
-        ApplicationEntry.Invoke();
+        var scene = SceneManager.LoadSceneAsync (SceneManager.GetActiveScene ().name);
+        scene.completed += LoadingCompleted;
+    }
+
+    private void LoadingCompleted (AsyncOperation asynk) {
+        OnModelInit?.Invoke ();
+        OnControlInit?.Invoke ();
+        OnViewInit?.Invoke ();
     }
 }
