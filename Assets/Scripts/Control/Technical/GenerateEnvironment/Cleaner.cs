@@ -6,6 +6,6 @@ public class Cleaner : MonoBehaviour
 {
     void OnTriggerEnter(Collider collider)
     {
-        Destroy(collider.gameObject);
+        collider.gameObject.GetComponent<PoolObject>().ReturnToPool();
     }
 }

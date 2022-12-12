@@ -5,6 +5,8 @@ using UnityEngine;
 public class Spawner : MonoBehaviour
 {
     public GameObject spawnObject;
+    public float scaleSpawn;
+
     public Transform mover;
 
     public bool spawn;
@@ -14,33 +16,31 @@ public class Spawner : MonoBehaviour
 
     public float probability;
 
-    private Vector3 startPosition;
-
-    private float waitTime;
+    private float _waitTime;
     void Start()
     {
-        startPosition = transform.position;
-
         spawn = true;
-        waitTime = 0;
+        _waitTime = 0;
 
-        StartCoroutine(TestCoroutine());
+        StartCoroutine(Spawn());
     }
 
-    IEnumerator TestCoroutine()
+    IEnumerator Spawn()
     {
         while (spawn)
         {
-            yield return new WaitForSeconds(waitTime);
+            yield return new WaitForSeconds(_waitTime);
 
             if (probability > Random.value)
             {
+                GameObject gameObject;
                 Vector3 generatePosition = mover.position + (transform.position- mover.position);
 
-                Instantiate(spawnObject, generatePosition, transform.rotation, mover);
+                //Instantiate(spawnObject, generatePosition, transform.rotation, mover).transform.localScale *= scaleSpawn;
+                gameObject = PoolManager.GetObject(spawnObject.name, generatePosition, transform.rotation, Vector3.one*scaleSpawn);
             }
 
-            waitTime = maxTimeInterval * Random.RandomRange(minTimeInterval, maxTimeInterval);
+            _waitTime = maxTimeInterval * Random.RandomRange(minTimeInterval, maxTimeInterval);
         }
     }
 }
