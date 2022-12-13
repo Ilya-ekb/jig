@@ -8,7 +8,7 @@ public class Ticket
     /// <summary>
     /// Дата билета для вывода в UI
     /// </summary>
-    public DateTime ticketDate { get; private set; }
+    public DateTime ticketDate { get; set; }
 
     /// <summary>
     /// Инициализирует билет (случайная и настоящие даты)

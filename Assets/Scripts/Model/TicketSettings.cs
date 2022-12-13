@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[CreateAssetMenu (fileName = "New TicketSettings", menuName = "Ticket Settings", order = 51)]
 public class TicketSettings : ScriptableObject
 {
     /// <summary>
