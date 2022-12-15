@@ -1,19 +1,151 @@
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.AI;
 
 public class PassangerController : MonoBehaviour
 {
-    Passanger passanger;
+    public enum WanderStates { NoPointDesignated, WalkingToPoint, IdleOnPoint };
+    public Passanger MyPassanger;
+    public WanderStates WanderState;
 
-    [SerializeField] private TicketSettings ticketSettings;
+    public UnityEvent NewPointDesignatedEvent;
+    public UnityEvent ArrivedOnPointEvent;
+    public UnityEvent FinishedIdlingEvent;
 
-    public void Initialize () {
-        passanger = new Passanger(Passanger.PassangerStates.goingToSit, ticketSettings);
+    [SerializeField] private TicketSettings MyTicketSettings;
+
+    private float IdleWalkingWaitTime;
+    private float PointStartWaitTime;
+    private Vector3 DesignatedMovePoint;
+    private Quaternion DesignatedMoveRotation;
+    private NavMeshAgent Agent;
+
+    private void Start()
+    {
+        // временное решение
+        Initialize();
     }
 
+    public void Initialize () {
+        MyPassanger = new Passanger(Passanger.PassangerStates.IdleWalking, MyTicketSettings);
+        WanderState = WanderStates.NoPointDesignated;
+        Agent = GetComponent<NavMeshAgent> ();
+        Agent.updatePosition = true;
+        Agent.updateRotation = true;
+    }
+
+    private void Update()
+    {
+        UpdateAI();
+    }
 
     public void ExitFromTrain()
     {
-        passanger.PassangerState = Passanger.PassangerStates.goingToExit;
-        //TODO: Exit Logic
+        MyPassanger.PassangerState = Passanger.PassangerStates.GoingToExit;
+        WanderState = WanderStates.NoPointDesignated;
+    }
+
+    void NewPointDesignated() {
+        NewPointDesignatedEvent.Invoke();
+    }
+
+    void ArrivedOnPoint()
+    {
+        ArrivedOnPointEvent.Invoke();
+        if (MyPassanger.PassangerState == Passanger.PassangerStates.GoingToSit)
+        {
+            MyPassanger.PassangerState = Passanger.PassangerStates.Sitting;
+            return;
+        }
+    }
+
+
+    public void ForceChangeDestination(Passanger.PassangerStates state)
+    {
+        MyPassanger.PassangerState = state;
+        WanderState = WanderStates.NoPointDesignated;
+    }
+
+    void FinishedIdling()
+    {
+        FinishedIdlingEvent.Invoke();
+    }
+    void UpdateAI()
+    {
+
+
+        Debug.Log(MyPassanger.PassangerState + " " + WanderState);
+
+        switch (WanderState)
+        {
+            case WanderStates.WalkingToPoint:
+
+                if (Agent.remainingDistance < Config.PassengerStopDistance)
+                {
+                    WanderState = WanderStates.IdleOnPoint;
+                    ArrivedOnPoint ();
+                }
+                PointStartWaitTime = Time.time;
+
+                if (MyPassanger.PassangerState == Passanger.PassangerStates.IdleWalking)
+                {
+                    IdleWalkingWaitTime = Time.time + Random.Range (Config.PassengerMinWanderPointWaitTime, Config.PassengerMaxWanderPointWaitTime);
+                }
+                break;
+            case WanderStates.IdleOnPoint:
+
+                //Придумать что сделать с вращением
+                transform.rotation = Quaternion.Lerp (transform.rotation, DesignatedMoveRotation, Config.PassengerRotationLerp);
+
+                Debug.Log(IdleWalkingWaitTime);
+
+                if (MyPassanger.PassangerState == Passanger.PassangerStates.IdleWalking)
+                {
+
+                    if (Time.time > IdleWalkingWaitTime)
+                    {
+                        WanderState = WanderStates.NoPointDesignated;
+                        FinishedIdling ();
+                    }
+                }
+                break;
+            default:
+
+                PointStartWaitTime = -1;
+
+                if (MyPassanger.PassangerState == Passanger.PassangerStates.GoingToSit)
+                {
+                    //Переместить название папки точек в staticdata или config
+                    GameObject sitPoints = GameObject.Find ("SitPoints");
+                    Transform point = sitPoints.transform.GetChild (Random.Range (0, sitPoints.transform.childCount));
+
+                    DesignatedMovePoint = point.position;
+                    DesignatedMoveRotation = point.rotation;
+                }
+                else if (MyPassanger.PassangerState == Passanger.PassangerStates.IdleWalking)
+                {
+                    //Переместить название папки точек в staticdata или config
+                    GameObject wanderPoints = GameObject.Find ("WanderPoints");
+                    Transform point = wanderPoints.transform.GetChild (Random.Range (0, wanderPoints.transform.childCount));
+
+                    DesignatedMovePoint = point.position;
+                    DesignatedMoveRotation = point.rotation;
+                }
+                else if (MyPassanger.PassangerState == Passanger.PassangerStates.GoingToExit)
+                {
+                    //Переместить название папки точек в staticdata или config
+                    GameObject exitPoints = GameObject.Find ("ExitPoints");
+                    Transform point = exitPoints.transform.GetChild (Random.Range (0, exitPoints.transform.childCount));
+
+                    DesignatedMovePoint = point.position;
+                    DesignatedMoveRotation = point.rotation;
+                }
+
+                Agent.SetDestination (DesignatedMovePoint);
+
+                WanderState = WanderStates.WalkingToPoint;
+                NewPointDesignated ();
+                break;
+        }
     }
 }
