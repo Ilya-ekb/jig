@@ -57,8 +57,6 @@ public class PassangerController : MonoBehaviour
             MyPassanger.PassangerState = Passanger.PassangerStates.Sitting;
             return;
         }
-        //MyPassanger.PassangerState = (Passanger.PassangerStates) Random.Range (0, MyPassanger.GetStateCount ());
-        //WanderState = WanderStates.WalkingToPoint;
     }
 
 
