@@ -20,11 +20,11 @@ public class PassangerController : MonoBehaviour
     private Quaternion DesignatedMoveRotation;
     private NavMeshAgent Agent;
 
-    private void Start()
+    /*private void Start()
     {
         // временное решение
         Initialize();
-    }
+    }*/
 
     public void Initialize () {
         MyPassanger = new Passanger(Passanger.PassangerStates.IdleWalking, MyTicketSettings);
@@ -41,9 +41,15 @@ public class PassangerController : MonoBehaviour
 
     public void ExitFromTrain()
     {
-        MyPassanger.PassangerState = Passanger.PassangerStates.GoingToExit;
+        ChangePassangerState(Passanger.PassangerStates.GoingToExit);
+    }
+
+    public void ChangePassangerState(Passanger.PassangerStates state)
+    {
+        MyPassanger.PassangerState = state;
         WanderState = WanderStates.NoPointDesignated;
     }
+
 
     void NewPointDesignated() {
         NewPointDesignatedEvent.Invoke();
@@ -57,7 +63,27 @@ public class PassangerController : MonoBehaviour
             MyPassanger.PassangerState = Passanger.PassangerStates.Sitting;
             return;
         }
+        //MyPassanger.PassangerState = (Passanger.PassangerStates) Random.Range (0, MyPassanger.GetStateCount ());
+        //WanderState = WanderStates.WalkingToPoint;
     }
+
+
+
+    public void ForceChangePoint(Vector3 point)
+    {
+        Agent.SetDestination(point);
+        DesignatedMovePoint = point;
+        WanderState = WanderStates.WalkingToPoint;
+    }
+    public void ForceChangePoint(Vector3 point, Quaternion rotation)
+    {
+        Agent.SetDestination(point);
+        DesignatedMovePoint = point;
+        DesignatedMoveRotation = rotation;
+        WanderState = WanderStates.WalkingToPoint;
+    }
+
+
 
 
     public void ForceChangeDestination(Passanger.PassangerStates state)
@@ -72,10 +98,6 @@ public class PassangerController : MonoBehaviour
     }
     void UpdateAI()
     {
-
-
-        Debug.Log(MyPassanger.PassangerState + " " + WanderState);
-
         switch (WanderState)
         {
             case WanderStates.WalkingToPoint:
@@ -97,8 +119,6 @@ public class PassangerController : MonoBehaviour
                 //Придумать что сделать с вращением
                 transform.rotation = Quaternion.Lerp (transform.rotation, DesignatedMoveRotation, Config.PassengerRotationLerp);
 
-                Debug.Log(IdleWalkingWaitTime);
-
                 if (MyPassanger.PassangerState == Passanger.PassangerStates.IdleWalking)
                 {
 
@@ -116,7 +136,7 @@ public class PassangerController : MonoBehaviour
                 if (MyPassanger.PassangerState == Passanger.PassangerStates.GoingToSit)
                 {
                     //Переместить название папки точек в staticdata или config
-                    GameObject sitPoints = GameObject.Find ("SitPoints");
+                    GameObject sitPoints = GameObject.Find (Config.sitPointsFolderName);
                     Transform point = sitPoints.transform.GetChild (Random.Range (0, sitPoints.transform.childCount));
 
                     DesignatedMovePoint = point.position;
@@ -125,7 +145,7 @@ public class PassangerController : MonoBehaviour
                 else if (MyPassanger.PassangerState == Passanger.PassangerStates.IdleWalking)
                 {
                     //Переместить название папки точек в staticdata или config
-                    GameObject wanderPoints = GameObject.Find ("WanderPoints");
+                    GameObject wanderPoints = GameObject.Find (Config.wanderPointsFolderName);
                     Transform point = wanderPoints.transform.GetChild (Random.Range (0, wanderPoints.transform.childCount));
 
                     DesignatedMovePoint = point.position;
@@ -134,7 +154,7 @@ public class PassangerController : MonoBehaviour
                 else if (MyPassanger.PassangerState == Passanger.PassangerStates.GoingToExit)
                 {
                     //Переместить название папки точек в staticdata или config
-                    GameObject exitPoints = GameObject.Find ("ExitPoints");
+                    GameObject exitPoints = GameObject.Find (Config.exitPointsFolderName);
                     Transform point = exitPoints.transform.GetChild (Random.Range (0, exitPoints.transform.childCount));
 
                     DesignatedMovePoint = point.position;
